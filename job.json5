@@ -1,0 +1,105 @@
+{
+    options: {
+        queue: './out/queue.json',
+        tplJson: './out/json/{{ticker}}.json',
+        merge: {
+            delim: '_',
+            csv: './out/all.csv',
+        },
+    },
+    contexts: [
+        { ticker: 'A'},
+        { ticker: 'AAV'},
+    ],
+    action: {
+        tplUrl: 'https://www.set.or.th/set/factsheet.do?symbol={{ticker}}&ssoPageId=3&language=en&country=TH',
+        data: [//*
+            { name: 'ticker', value: { selector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(1) > tbody > tr > td.factsheet-heading' }},
+            { name: 'company', value: { selector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(1) > tbody > tr > td.factsheet-heading2' }},
+            { name: 'industry', value: { selector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(1) > td > table > tbody > tr > td:nth-child(1) > table > tbody > tr:nth-child(1) > td' }},
+            { name: 'updatedDate', 
+                value: {
+                    selector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(1) > td > table > tbody > tr > td:nth-child(3) > table > tbody > tr > td',
+                    regex: '\\d+.+\\d{4}'
+                },
+            },
+            {
+                loop: {
+                    tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(1)',
+                    excludes: [ 2 ], // 52 Week Hight/Low
+                },
+                data: {
+                    name: {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(1) > td:nth-child({{index}})',
+                        regex: '^[^\\(]+'
+                    },
+                    value: { tplSelector : 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(2) > td:nth-child({{index}})' },
+                    unit: {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(1) > td:nth-child({{index}})',
+                        regex: '\\((.*?)\\)'
+                    },
+                    dataType: 'number',
+                },
+            },
+            {
+                name: { // 52 Week Hight/Low
+                    selector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(1) > td:nth-child(2)',
+                    regex: '^[^\\(]+',
+                },
+                value: { selector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(2) > td:nth-child(2)' }
+            },
+            // Begin Company Profile
+            {
+                loop: {
+                    tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(3) > td:nth-child(1) > table:nth-child(3) > tbody',
+                    excludes: [1, 6, 8, 10],
+                },
+                data: {
+                    name: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(3) > td:nth-child(1) > table:nth-child(3) > tbody > tr:nth-child({{index}}) > td:nth-child(1)' },
+                    value: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(3) > td:nth-child(1) > table:nth-child(3) > tbody > tr:nth-child({{index}}) > td:nth-child(2)' }
+                },
+            },
+            {
+                loop: {
+                    tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(3) > td:nth-child(1) > table:nth-child(3) > tbody',
+                    only: [8, 10],
+                },
+                data: {
+                    name: { // IPO Price
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(3) > td:nth-child(1) > table:nth-child(3) > tbody > tr:nth-child({{index}}) > td:nth-child(1)',
+                        regex: '^[^\\(]+'
+                    },
+                    value: {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(3) > td:nth-child(1) > table:nth-child(3) > tbody > tr:nth-child({{index}}) > td:nth-child(2)',
+                        regex: '^[^\\s]+'
+                    },
+                },
+                dataType: 'number',
+            }, // End Company Profile
+            //*/
+            // Begin Statement of Financial Position
+            {
+                loop: [
+                    {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(8) > td > table > tbody',
+                        excludes: [1, -1], // row header and last row
+                    },
+                    {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(8) > td > table > tbody > tr:nth-child({{index-0}})',
+                        excludes: [1], // column header
+                    },
+                ],
+                data: {
+                    name: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(8) > td > table > tbody > tr:nth-child({{index-0}}) > td:nth-child(1)'},
+                    value: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(8) > td > table > tbody > tr:nth-child({{index-0}}) > td:nth-child({{index-1}})'},
+                    year: { 
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(8) > td > table > tbody > tr:nth-child(1) > td:nth-child({{index-1}})',
+                        regex: '^[^\\n]+',
+                    },
+                },
+                dataType: 'number',
+            },
+            //End Statement of Financial Position
+        ]
+    }
+}
