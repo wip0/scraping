@@ -8,8 +8,11 @@
         },
     },
     contexts: [
-        { ticker: 'A'},
-        { ticker: 'AAV'},
+    {ticker: 'PTT'},
+    {ticker:  'IVL' },
+    {ticker: 'AMANAH'}
+
+
     ],
     action: {
         tplUrl: 'https://www.set.or.th/set/factsheet.do?symbol={{ticker}}&ssoPageId=3&language=en&country=TH',
@@ -23,6 +26,7 @@
                     regex: '\\d+.+\\d{4}'
                 },
             },
+            { name: 'business', value: { selector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(3) > td:nth-child(1) > table:nth-child(5) > tbody > tr:nth-child(2) > td'}},
             {
                 loop: {
                     tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(1)',
@@ -100,6 +104,117 @@
                 dataType: 'number',
             },
             //End Statement of Financial Position
+            //Begin Statement of Comprehensive Income
+            {
+                loop: [
+                    {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(9) > td > table > tbody',
+                        excludes: [1, -1], 
+                    },
+                    {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(9) > td > table > tbody > tr:nth-child({{index-0}})',
+                        excludes: [1],
+                    },
+                ],
+                data: {
+                    name: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(9) > td > table > tbody > tr:nth-child({{index-0}}) > td:nth-child(1)'},
+                    value: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(9) > td > table > tbody > tr:nth-child({{index-0}}) > td:nth-child({{index-1}})'},
+                    year: {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(9) > td > table > tbody > tr:nth-child(1) > td:nth-child({{index-1}})',
+                        regex: '^[^\\n]+',
+                    },
+                },
+                dataType: 'number',
+            },//End of Statement of Comprehensive Income
+            //Begin Statement of Cash Flow (MB.)
+            {
+                loop: [
+                    {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(10) > td > table > tbody',
+                        excludes: [1, -1],
+                    },
+                    {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(10) > td > table > tbody > tr:nth-child({{index-0}})',
+                        excludes: [1],
+                    },
+                ],
+                data: {
+                    name: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(10) > td > table > tbody > tr:nth-child({{index-0}}) > td:nth-child(1)'},
+                    value: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(10) > td > table > tbody > tr:nth-child({{index-0}}) > td:nth-child({{index-1}})'},
+                    year:{
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(10) > td > table > tbody > tr:nth-child(1) > td:nth-child({{index-1}})',
+                        regex: '^[^\\n]+',
+                    },
+                },
+                dataType: 'number',
+            },// End of Statement of Cash Flow (MB.)
+            //Begin of Ratios
+            //From this point , I couldnt get the last line of each table.
+            {
+                loop: [
+                    { 
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(1) > table:nth-child(1) > tbody',
+                        excludes: [1, -1],
+                    },
+                    {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(1) > table:nth-child(1) > tbody > tr:nth-child({{index-0}})', 
+                        excludes: [1],
+                    },
+                ],
+                data:{
+                    name: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(1) > table:nth-child(1) > tbody > tr:nth-child({{index-0}}) > td:nth-child(1)'},// Couldnt get Net Profit Margin(%)
+                    value: {tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(1) > table:nth-child(1) > tbody > tr:nth-child({{index-0}}) > td:nth-child({{index-1}})'},
+                    year: {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(1) > table:nth-child(1) > tbody > tr:nth-child(2) > td:nth-child({{index-1}})',
+                        regex: '^[^\\n]+',
+                    },
+                },
+                dataType: 'number',
+            }, // End of Ratios
+            //Begin of Growth Rate (%)
+            {
+                loop: [
+                    {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(2) > table:nth-child(2) > tbody',
+                        excludes: [1, -1],
+                    },
+                    {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(2) > table:nth-child(2) > tbody > tr:nth-child({{index-0}})',
+                        excludes: [1],
+                    },
+                ],
+                data:{
+                    name: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(2) > table:nth-child(2) > tbody > tr:nth-child({{index-0}}) > td:nth-child(1)'},
+                    value: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(2) > table:nth-child(2) > tbody > tr:nth-child({{index-0}}) > td:nth-child({{index-1}})'},
+                    year: {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(2) > table:nth-child(2) > tbody > tr:nth-child(2) > td:nth-child({{index-1}})',
+                        regex: '^[^\\n]+',
+                    },
+                },
+                dataType: 'number'
+            },//End of Growth Rate (%)
+            //Begin of Cash Cycle
+            {
+                loop: [
+                    {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(2) > table:nth-child(4) > tbody',
+                        excludes: [1,-1],
+                    },
+                    {
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(2) > table:nth-child(4) > tbody > tr:nth-child({{index-0}})',
+                        excludes: [1],
+                    },
+                ],
+                data:{
+                    name: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(2) > table:nth-child(4) > tbody > tr:nth-child({{index-0}}) > td:nth-child(1)'}, // index-1 ??
+                    value: { tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(2) > table:nth-child(4) > tbody > tr:nth-child({{index-0}}) > td:nth-child({{index-1}})'},
+                    year:{
+                        tplSelector: 'body > table > tbody > tr:nth-child(3) > td > table:nth-child(2) > tbody > tr:nth-child(11) > td:nth-child(2) > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child({{index-1}})',
+                        regex: '^[^\\n]+',
+                    },
+                },
+                dataType: 'number'
+            } // End of Cash Cycle
         ]
     }
 }
