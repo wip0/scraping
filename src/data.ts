@@ -35,13 +35,15 @@ function isDataExOption(opt: DataOptions | DataExOptions): opt is DataExOptions 
 
 export function getText(page: P.Page, selector: string): Promise<string> {
     return page.evaluate((sel) => {
-        return document.querySelector(sel).innerText;
+        var e = document.querySelector(sel);
+        return e != null ? e.innerText : '';
     }, selector);
 }
 
 export function getNumChild(page: P.Page, selector: string): Promise<number> {
     return page.evaluate((sel) => {
-        return document.querySelectorAll(sel)[0].children.length;
+        var e = document.querySelectorAll(sel)[0];
+        return e != null ? e.children.length : 0;
     }, selector);
 }
 
