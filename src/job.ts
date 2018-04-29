@@ -151,7 +151,7 @@ export async function scrapeLoop(page: P.Page, opt: DataLoopEntryOptions, contex
         const contexts = await prevLoop;
         const promises = contexts.map((c) => getLoopContext(page, currLoop, c));
         const out = await Promise.all(promises).then((results: Array<object[]>) => {
-            return results.reduce((prev, curr) => prev.concat(curr));
+            return results.reduce((prev, curr) => prev.concat(curr), []);
         });
         return out;
     }, Promise.resolve([context]));
